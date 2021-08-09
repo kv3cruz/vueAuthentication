@@ -15,7 +15,7 @@ module.exports = {
       'vue/valid-v-slot': 'off',
       'vue/no-side-effects-in-computed-properties': 'off',
       'vue/component-name-in-template-casing': ['error', 'PascalCase'],
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+      'no-console': 'off'
    },
    parserOptions: {
       parser: 'babel-eslint'
