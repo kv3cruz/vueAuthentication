@@ -38,20 +38,33 @@ app.post('/register', (req, res) => {
       }
       var data = JSON.stringify(user, null, 2)
 
-      fs.writeFile('db/user.json', data, err => {
-         if (err) {
-            console.log(err)
-         } else {
-            console.log('Added user to user.json')
-         }
-      })
-      // The secret key should be an evironment variable in a live app
-      const token = jwt.sign({ user }, 'the_secret_key')
-      res.json({
-         token,
-         email: user.email,
-         name: user.name
-      })
+      var dbUserEmail = require('./db/user.json').email
+      var errorsToSend = []
+
+      if (dbUserEmail === user.email) {
+         errorsToSend.push('An Account with this email already exists')
+      }
+      if (user.password.length < 5) {
+         errorsToSend.push('Password too short')
+      }
+      if (errorsToSend.length > 0) {
+         res.status(400).json({
+            errors: errorsToSend
+         })
+      } else {
+         fs.writeFile('db/user.json', data, err => {
+            if (err) {
+               console.log(err)
+            } else {
+               const token = jwt.sign({ user }, 'the_secret_key') // The secret key should be an evironment variable in a live app
+               res.json({
+                  token,
+                  email: user.email,
+                  name: user.name
+               })
+            }
+         })
+      }
    } else {
       res.sendStatus(401)
    }
@@ -73,7 +86,7 @@ app.post('/login', (req, res) => {
          name: userInfo.name
       })
    } else {
-      res.sendStatus(401)
+      res.status(401).json({ error: 'invalid login. Please try again.' })
    }
 })
 
